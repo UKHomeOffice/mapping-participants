@@ -28,8 +28,6 @@ Proving our way of working:
 * reduces cost to the overall business
 * reduces and manages projects risks
 
-"DDaT project has passed sucessfully into Live because it has spoken to a representive sample of 10% of the users. Because of that it would be a good way to support the digital transition of the lower DI segment, reducing the number of paper applications"
-
-The user needs around this are directly related to the government digital inclusion strategy.
+The user needs around this are at the heart of the digital inclusion strategy
 
 https://www.gov.uk/government/publications/government-digital-inclusion-strategy/government-digital-inclusion-strategy
