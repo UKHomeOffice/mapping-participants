@@ -30,6 +30,7 @@
     "hof-frontend-toolkit": "^2.1.0",
     "hof-govuk-template": "1.0.0",
     "hogan-express-strict": "^0.5.4",
+    "lodash": "^4.17.4",
     "npm-sass": "^2.2.0"
   },
   "devDependencies": {
