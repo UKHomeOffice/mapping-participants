@@ -8,6 +8,12 @@ const hoganExpressStrict = require('hogan-express-strict');
 const expressPartialTemplates = require('express-partial-templates');
 const _ = require('lodash');
 const apiCall = require('./lib/api-call');
+const config = require('./config');
+const baseUrl = config.apiBaseUrl;
+const surveyID = config.surveyID;
+const responses = config.endPointResponses;
+const apiToken = config.apiToken;
+const apiTokenSecret = config.apiTokenSecret;
 
 govukTemplate.setup(app);
 app.set('view engine', 'html')
@@ -17,7 +23,7 @@ app.use(expressPartialTemplates(app));
 
 app.use('public', express.static(path.resolve(__dirname, 'public')))
 
-apiCall.getResponses();
+apiCall.getResponses(baseUrl, surveyID, responses, apiToken, apiTokenSecret);
 
 app.get('/', function(req, res, next){
   res.render('home', _.merge({}, res.locals, {
