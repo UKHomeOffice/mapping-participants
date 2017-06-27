@@ -1,78 +1,100 @@
 'use strict';
 
-var apiCall = require('../../lib/smartSurveyAPICall');
-const config = require('../../config');
 const proxy = require('proxyquire');
 const sinon = require('sinon');  
-const chai = require('chai');
-var should = chai.should();
-
+const chai = require('chai').use(require('sinon-chai'));
+const should = chai.should();
 const proxyquire = require('proxyquire');
 let stubAxios = {};
 
-const smartSurveyAPI = proxyquire('../../lib/smartSurveyAPICall', {
-  'axios': stubAxios
+// Proxyquire syntax: first argument: point to your module (which holds your dependency)
+// 2nd argument: An object with the key: module name to proxy & the value the empty object above
+// So this means smartSurveyAxiosAPI will now point to this empty object, i.e. a stub
+const smartSurveyAxiosAPI = proxyquire('../../lib/smartSurveyAPICall', {
+  'axios': stubAxios,
 });
 
-let stubSmartSurvey = {};
+// create an empty function using echma 5 syntax because of using the this context
+var stubSmartSurvey = function(params) {
+}
 
 const smartSurveyClientAPI = proxyquire('../../lib/smartSurveyAPICall', {
   'smartsurvey-client': stubSmartSurvey
 });
 
-describe('api-call', () => {
-  describe('getResponses', () => {   
+describe('smartSuveyAPICall', function() {
+  describe('smartSurveyAxiosAPI', function() {
     beforeEach(() => {
       
     }) 
+    const baseUrl = 'a'
+    const surveyID = 'b'
+    const endPoint = 'c'
+    const token = 'd'
+    const tokenSecret = 'e'
 
-    //ideas of what to do
-    it('assert that it has been called with the parameters baseURL blah blah', function() {
-            const baseUrl = 'a' 
-      const surveyID = '1'
-      const endPoint = '2'
-      const token = '3'
-      const tokenSecret = '4'
+    it('axios should been called with the parameters baseURL, surveyID, endPoint, token, tokenSecret', function () {
 
-      // resolves for Promises
-      // stubAxios.get = sinon.stub().resolves('test')
+      // the sinon.stub resolves function is used for Promises
+      // this works as well, stubAxios.get = sinon.stub().resolves('test')
+      // however, this is done so that the stub can be restored for later
       let stub = sinon.stub(stubAxios, 'get').resolves('test');
 
-      // sinon.stub(stubAxios.prototype, 'get').returns('blah');
-      smartSurveyAPI.getResponses(baseUrl, surveyID, endPoint, token, tokenSecret);
+      smartSurveyAxiosAPI.getResponses(baseUrl, surveyID, endPoint, token, tokenSecret);
+      stubAxios.get.should.have.been.calledWithExactly('a/b/c?api_token=d&api_token_secret=e');
       stub.restore();
-      // mock the api library(smartSurvey/axious) proxyRequire or rewire
-      // run the get method in lib doc
-      // assert axious was run with the expected parameters
     });
+  })
+    describe('smartSurveyClientAPI', function() {
+      var that;
+      beforeEach( function() {
+        that = {
+          createClient:sinon.stub(),
+          client:{
+            getResponses:sinon.stub()
+          },
+          parseResponse: "does not matter"
+        }
+        smartSurveyClientAPI.getData.call(that, "a", "b", "1")
+      })
+      it('calls this.createClient with the correct params', function() {
+         that.createClient.should.have.been.calledWithExactly("a", "b")
+      })
+      it('calls this.client.getResponses with the correct params', function() {
+        that.client.getResponses.should.have.been.calledWithExactly("1",{ page: 1, pageSize: 25, includeLabels: false}, that.parseResponse)
+      })
+      it('sets this.client to a new instance of SmartSurveyClient', function() {
+          let that = {};
+          // you can mock smartSurveyClientAPI as a constructor if you want to, but not essential
+          smartSurveyClientAPI.createClient.call(that, "a", "b");
+          that.client.should.be.instanceof(stubSmartSurvey);
+      })
+      it('calls the SmartSurveyClient constructor with the correct params', function() {
+          var that = {};
+          var stub = sinon.stub(stubSmartSurvey, 'constructor')
 
-    // beforeAll setup the mock
-    //describe block
-    it.only('SmartSurveyAPIClient test: assert that methods have been called with expected Args ', function() {
-      // mock SmartSurveyAPItest, proxyRequire or rewire
-      // set up mock to expect the correct args and respond appropriately
-      // check the assertion works
-      //let stub = sinon.stub(smartSurveyClientAPI, 'get').callsArgsWith(2, false, {});
-      // smartSurveyAPIClient.getData(baseUrl, surveyID, endPoint, token, tokenSecret);
-      // var that = {}
-      // that.client = {getResponses : () => {
+          stubSmartSurvey.prototype.constructor = sinon.stub()
 
-      // }};
-      // // var twat = apiCall.getData.applyCall
-      // apiCall.getData.apply(that, ['test', 'test', 'test'])
+          smartSurveyClientAPI.createClient.call(that, "1", "2");
+          stubSmartSurvey.constructor.should.have.been.calledWithExactly({ apiToken: '1', apiTokenSecret: '2' })
+      })
 
-    });    
+      it('SmartSurveyAPItest: when there is an error, log it out', function() {
+        consoleSpy = sinon.stub(console, 'log');
+        var msg = 'my test error';
 
-    it('SmartSurveyAPItest: assert that methods have been called with not expected Args ', function() {
-      // mock SmartSurveyAPItest, proxyRequire or rewire
-      // set up mock to expect the correct args and respond appropriately
-      // check the assertion works
-    });    
+        let context = {
+          createClient: sinon.stub(),
+          client: {
+            getResponses: sinon.stub()
+          },
+          parseResponse: "test"
+        };
+        context.client.getResponses.withArgs(undefined, { page: 1, pageSize: 25, includeLabels: false}, "test").returns(msg)
 
-    it('SmartSurveyAPItest: when there is an error, log it out', function() {
-      // mock SmartSurveyAPItest, proxyRequire or rewire
-      // set up mock to expect the correct args and respond appropriately
-      // check the assertion works
-    });    
+        smartSurveyClientAPI.getData.call(context, "a", "b", undefined);
+        console.log.should.have.been.calledWith(msg);
+        console.log.restore();
+      });
   });
-})
+});

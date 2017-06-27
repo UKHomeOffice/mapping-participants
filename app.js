@@ -18,18 +18,13 @@ app.use(expressPartialTemplates(app));
 
 app.use('public', express.static(path.resolve(__dirname, 'public')))
 
-// smartSurveyAPICall.getResponses(
-//   config.apiBaseUrl,
-//   config.surveyID,
-//   config.endPointResponses,
-//   config.apiToken,
-//   config.apiTokenSecret);
-
-smartSurveyAPICall.getData(config.apiToken, config.apiTokenSecret, config.surveyID);
-
 app.get('/', function(req, res, next){
   res.render('home', _.merge({}, res.locals, {
   }))
+})
+
+app.get('/responses', function(req, res, next){
+  res.json(smartSurveyAPICall.getData(config.apiToken, config.apiTokenSecret, config.surveyID))
 })
 
 app.listen(4000, function() {
