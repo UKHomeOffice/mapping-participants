@@ -1,6 +1,5 @@
 'use strict';
 
-const proxy = require('proxyquire');
 const sinon = require('sinon');  
 const chai = require('chai').use(require('sinon-chai'));
 const should = chai.should();
@@ -15,18 +14,16 @@ const smartSurveyAxiosAPI = proxyquire('../../lib/smartSurveyAPICall', {
 });
 
 // create an empty function using not using arrow functions because using context
-var stubSmartSurvey = function(params) {
+var stubSmartSurvey = function() {
 }
-
-const smartSurveyClientAPI = proxyquire('../../lib/smartSurveyAPICall', {
+var smartSurveyClientAPI = proxyquire('../../lib/smartSurveyAPICall', {
   'smartsurvey-client': stubSmartSurvey
 });
 
+var parseResponse = require('../../lib/smartSurveyAPICall').parseResponse;
+
 describe('smartSuveyAPICall', function() {
   describe('smartSurveyAxiosAPI', function() {
-    beforeEach(() => {
-      
-    }) 
     const baseUrl = 'a'
     const surveyID = 'b'
     const endPoint = 'c'
@@ -53,15 +50,15 @@ describe('smartSuveyAPICall', function() {
           client:{
             getResponses:sinon.stub()
           },
-          parseResponse: "does not matter"
+          callback: function() {}
         }
-        smartSurveyClientAPI.getData.call(that, "a", "b", "1")
+        smartSurveyClientAPI.getData.call(that, "a", "b", "1", that.callback)
       })
       it('calls this.createClient with the correct params', function() {
          that.createClient.should.have.been.calledWithExactly("a", "b")
       })
       it('calls this.client.getResponses with the correct params', function() {
-        that.client.getResponses.should.have.been.calledWithExactly("1",{ page: 1, pageSize: 25, includeLabels: false}, that.parseResponse)
+        that.client.getResponses.should.have.been.calledWithExactly("1",{ page: 1, pageSize: 25, includeLabels: false}, that.callback)
       })
       it('sets this.client to a new instance of SmartSurveyClient', function() {
           let that = {};
@@ -69,45 +66,63 @@ describe('smartSuveyAPICall', function() {
           smartSurveyClientAPI.createClient.call(that, "a", "b");
           that.client.should.be.instanceof(stubSmartSurvey);
       })
-      it('calls the SmartSurveyClient constructor with the correct params', function() {
+      it('calls the SmartSurveyClient constructor', function() {
           var that = {};
-          var stub = sinon.stub(stubSmartSurvey, 'constructor')
+          // reassign the stubSmartSurvey with a stub to listen
+          stubSmartSurvey = sinon.stub();
 
-          stubSmartSurvey.prototype.constructor = sinon.stub()
+          // reproxyrequire because the stubSmartSurvey now has a stub
+          smartSurveyClientAPI = proxyquire('../../lib/smartSurveyAPICall', {
+            'smartsurvey-client': stubSmartSurvey
+          });
 
           smartSurveyClientAPI.createClient.call(that, "1", "2");
-          stubSmartSurvey.constructor.should.have.been.calledWithExactly({ apiToken: '1', apiTokenSecret: '2' })
+          stubSmartSurvey.should.have.been.called;
       })
   });
 
-    it('should call the callback with an error response when we receive an error from the api', function() {
+      it('should call the callback with an error response when we receive an error from the api', function() {
 
-      let context = {
-        createClient: sinon.stub(),
-        client: {
-          getResponses: sinon.stub()
+        let context = {
+          createClient: sinon.stub(),
+          client: {
+            getResponses: sinon.stub()
+          }
         }
-      }
-      const callback = sinon.stub()
+        const callback = sinon.stub()
 
-      context.client.getResponses.callsArgWith(2, 'error message', 1);
-      smartSurveyClientAPI.getData.call(context, "a", "b", undefined, callback)
-      callback.should.have.been.calledWith('error message', 1);
-    })
+        // Causes the stub to call the argument at the index as a callback function.
+        // stub.callsArg(2); stub calls the 3rd argument as a callback.
+        // callsArgWith like callsArg, but with arguments to pass to the callback.
+        context.client.getResponses.callsArgWith(2, 'error message', 1);
+        smartSurveyClientAPI.getData.call(context, "a", "b", undefined, callback)
+        callback.should.have.been.calledWith('error message', 1);
+      })
 
-    it('should call the callback without an error when we receive success from the api', function() {
+      it('should call the callback without an error when we receive success from the api', function() {
 
-      let context = {
-        createClient: sinon.stub(),
-        client: {
-          getResponses: sinon.stub()
+        let context = {
+          createClient: sinon.stub(),
+          client: {
+            getResponses: sinon.stub()
+          }
         }
-      }
-      const callback = sinon.stub()
+        const callback = sinon.stub()
 
-      context.client.getResponses.callsArgWith(2, null, "good");
-      smartSurveyClientAPI.getData.call(context, "a", "b", undefined, callback)
-      callback.should.have.been.calledWith(null, "good");
+        context.client.getResponses.callsArgWith(2, null, "good");
+        smartSurveyClientAPI.getData.call(context, "a", "b", undefined, callback)
+        callback.should.have.been.calledWith(null, "good");
+      })
+    describe('parseResponse', function() {
+      it('should return an error message if there is an error', function() {
+        parseResponse('error', null).should.equal('error')
+      })
+
+      it('should return the result if there is no error', function() {
+        const result = parseResponse(null, 'good response');
+        const expect = JSON.stringify('good response', null, 2);
+        result.should.deep.equal(expect);
+      })
+
     })
-
 });
