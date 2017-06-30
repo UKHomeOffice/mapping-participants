@@ -24,7 +24,7 @@ app.get('/', function(req, res, next){
 })
 
 app.get('/responses', function(req, res, next){
-  res.json(smartSurveyAPICall.getData(config.apiToken, config.apiTokenSecret, config.surveyID))
+  res.json(smartSurveyAPICall.getData(config.apiToken, config.apiTokenSecret, config.surveyID, smartSurveyAPICall.parseResponse))
 })
 
 app.listen(4000, function() {

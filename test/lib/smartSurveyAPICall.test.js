@@ -14,7 +14,7 @@ const smartSurveyAxiosAPI = proxyquire('../../lib/smartSurveyAPICall', {
   'axios': stubAxios,
 });
 
-// create an empty function using echma 5 syntax because of using the this context
+// create an empty function using not using arrow functions because using context
 var stubSmartSurvey = function(params) {
 }
 
@@ -78,23 +78,36 @@ describe('smartSuveyAPICall', function() {
           smartSurveyClientAPI.createClient.call(that, "1", "2");
           stubSmartSurvey.constructor.should.have.been.calledWithExactly({ apiToken: '1', apiTokenSecret: '2' })
       })
-
-      it('SmartSurveyAPItest: when there is an error, log it out', function() {
-        consoleSpy = sinon.stub(console, 'log');
-        var msg = 'my test error';
-
-        let context = {
-          createClient: sinon.stub(),
-          client: {
-            getResponses: sinon.stub()
-          },
-          parseResponse: "test"
-        };
-        context.client.getResponses.withArgs(undefined, { page: 1, pageSize: 25, includeLabels: false}, "test").returns(msg)
-
-        smartSurveyClientAPI.getData.call(context, "a", "b", undefined);
-        console.log.should.have.been.calledWith(msg);
-        console.log.restore();
-      });
   });
+
+    it('should call the callback with an error response when we receive an error from the api', function() {
+
+      let context = {
+        createClient: sinon.stub(),
+        client: {
+          getResponses: sinon.stub()
+        }
+      }
+      const callback = sinon.stub()
+
+      context.client.getResponses.callsArgWith(2, 'error message', 1);
+      smartSurveyClientAPI.getData.call(context, "a", "b", undefined, callback)
+      callback.should.have.been.calledWith('error message', 1);
+    })
+
+    it('should call the callback without an error when we receive success from the api', function() {
+
+      let context = {
+        createClient: sinon.stub(),
+        client: {
+          getResponses: sinon.stub()
+        }
+      }
+      const callback = sinon.stub()
+
+      context.client.getResponses.callsArgWith(2, null, "good");
+      smartSurveyClientAPI.getData.call(context, "a", "b", undefined, callback)
+      callback.should.have.been.calledWith(null, "good");
+    })
+
 });

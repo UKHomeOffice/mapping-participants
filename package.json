@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node .",
-    "test": "NODE_ENV=test mocha test/*",
+    "test": "NODE_ENV=test mocha --recursive",
     "dev": "NODE_ENV=dev npm-run-all --parallel watch:app watch:sass",
     "watch:app": "nodemon .",
     "watch:sass": "nodemon -e scss -x 'npm run sass'",
@@ -40,6 +40,7 @@
     "nodemon": "^1.11.0",
     "npm-run-all": "^4.0.2",
     "proxyquire": "^1.8.0",
-    "sinon": "^2.3.2"
+    "sinon": "^2.3.2",
+    "sinon-chai": "^2.11.0"
   }
 }
