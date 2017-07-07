@@ -7,6 +7,8 @@
     "start": "node .",
     "test": "NODE_ENV=test mocha --recursive",
     "dev": "NODE_ENV=dev npm-run-all --parallel watch:app watch:sass",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "watch:app": "nodemon .",
     "watch:sass": "nodemon -e scss -x 'npm run sass'",
     "setup": "mkdir ./public; mkdir ./public/css",
@@ -37,6 +39,8 @@
   },
   "devDependencies": {
     "chai": "^4.0.1",
+    "eslint": "^4.1.1",
+    "eslint-config-homeoffice": "^2.1.2",
     "nodemon": "^1.11.0",
     "npm-run-all": "^4.0.2",
     "proxyquire": "^1.8.0",
