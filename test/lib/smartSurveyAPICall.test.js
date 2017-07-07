@@ -43,31 +43,31 @@ describe('smartSuveyAPICall', function() {
     });
   })
     describe('smartSurveyClientAPI', function() {
-      var that;
+      var context;
       beforeEach( function() {
-        that = {
+        context = {
           createClient:sinon.stub(),
           client:{
             getResponses:sinon.stub()
           },
           callback: function() {}
         }
-        smartSurveyClientAPI.getData.call(that, "a", "b", "1", that.callback)
+        smartSurveyClientAPI.getData.call(context, "a", "b", "1", context.callback)
       })
       it('calls this.createClient with the correct params', function() {
-         that.createClient.should.have.been.calledWithExactly("a", "b")
+         context.createClient.should.have.been.calledWithExactly("a", "b")
       })
       it('calls this.client.getResponses with the correct params', function() {
-        that.client.getResponses.should.have.been.calledWithExactly("1",{ page: 1, pageSize: 25, includeLabels: false}, that.callback)
+        context.client.getResponses.should.have.been.calledWithExactly("1",{ page: 1, pageSize: 25, includeLabels: false}, context.callback)
       })
       it('sets this.client to a new instance of SmartSurveyClient', function() {
-          let that = {};
+          let context = {};
           // you can mock smartSurveyClientAPI as a constructor if you want to, but not essential
-          smartSurveyClientAPI.createClient.call(that, "a", "b");
-          that.client.should.be.instanceof(stubSmartSurvey);
+          smartSurveyClientAPI.createClient.call(context, "a", "b");
+          context.client.should.be.instanceof(stubSmartSurvey);
       })
       it('calls the SmartSurveyClient constructor', function() {
-          var that = {};
+          var context = {};
           // reassign the stubSmartSurvey with a stub to listen
           stubSmartSurvey = sinon.stub();
 
@@ -76,7 +76,7 @@ describe('smartSuveyAPICall', function() {
             'smartsurvey-client': stubSmartSurvey
           });
 
-          smartSurveyClientAPI.createClient.call(that, "1", "2");
+          smartSurveyClientAPI.createClient.call(context, "1", "2");
           stubSmartSurvey.should.have.been.called;
       })
   });
