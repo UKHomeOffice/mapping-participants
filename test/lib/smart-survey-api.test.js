@@ -14,7 +14,7 @@ const smartSurveyAxiosAPI = proxyquire('../../lib/smart-survey-api', {
 });
 
 // create an empty function using not using arrow functions because using context
-var stubSmartSurvey = function empty() {
+var stubSmartSurvey = function stubSmartSurvey() {
 };
 
 var smartSurveyClientAPI = proxyquire('../../lib/smart-survey-api', {
@@ -23,7 +23,7 @@ var smartSurveyClientAPI = proxyquire('../../lib/smart-survey-api', {
 
 var parseResponse = require('../../lib/smart-survey-api').parseResponse;
 
-describe('smartSuveyAPICall', function() {
+describe('smartSuveyAPI', function() {
   describe('smartSurveyAxiosAPI', function() {
     const baseUrl = 'a';
     const surveyID = 'b';
@@ -84,49 +84,51 @@ describe('smartSuveyAPICall', function() {
           stubSmartSurvey.should.have.been.called;
       });
   });
+  describe('smartSurveyClientAPI', function() {
+    it('should call the callback with an error response when we receive an error from the api', function() {
 
-      it('should call the callback with an error response when we receive an error from the api', function() {
+      let context = {
+        createClient: sinon.stub(),
+        client: {
+          getResponses: sinon.stub()
+        }
+      };
+      const callback = sinon.stub();
 
-        let context = {
-          createClient: sinon.stub(),
-          client: {
-            getResponses: sinon.stub()
-          }
-        };
-        const callback = sinon.stub();
-
-        // Causes the stub to call the argument at the index as a callback function.
-        // stub.callsArg(2); stub calls the 3rd argument as a callback.
-        // callsArgWith like callsArg, but with arguments to pass to the callback.
-        context.client.getResponses.callsArgWith(2, 'error message', 1);
-        smartSurveyClientAPI.getData.call(context, 'a', 'b', undefined, callback);
-        callback.should.have.been.calledWith('error message', 1);
-      });
-
-      it('should call the callback without an error when we receive success from the api', function() {
-
-        let context = {
-          createClient: sinon.stub(),
-          client: {
-            getResponses: sinon.stub()
-          }
-        };
-        const callback = sinon.stub();
-
-        context.client.getResponses.callsArgWith(2, null, 'good');
-        smartSurveyClientAPI.getData.call(context, 'a', 'b', undefined, callback);
-        callback.should.have.been.calledWith(null, 'good');
-      });
-    describe('parseResponse', function() {
-      it('should return an error message if there is an error', function() {
-        parseResponse('error', null).should.equal('error');
-      });
-
-      it('should return the result if there is no error', function() {
-        const result = parseResponse(null, 'good response');
-        const expect = JSON.stringify('good response', null, 2);
-        result.should.deep.equal(expect);
-      });
-
+      // Causes the stub to call the argument at the index as a callback function.
+      // stub.callsArg(2); stub calls the 3rd argument as a callback.
+      // callsArgWith like callsArg, but with arguments to pass to the callback.
+      context.client.getResponses.callsArgWith(2, 'error message', 1);
+      smartSurveyClientAPI.getData.call(context, 'a', 'b', undefined, callback);
+      callback.should.have.been.calledWith('error message', 1);
     });
+
+    it('should call the callback without an error when we receive success from the api', function() {
+
+      let context = {
+        createClient: sinon.stub(),
+        client: {
+          getResponses: sinon.stub()
+        }
+      };
+      const callback = sinon.stub();
+
+      context.client.getResponses.callsArgWith(2, null, 'good');
+      smartSurveyClientAPI.getData.call(context, 'a', 'b', undefined, callback);
+      callback.should.have.been.calledWith(null, 'good');
+    });
+  });
+
+  describe('parseResponse', function() {
+    it('should return an error message if there is an error', function() {
+      parseResponse('error', null).should.equal('error');
+    });
+
+    it('should return the result if there is no error', function() {
+      const result = parseResponse(null, 'good response');
+      const expect = JSON.stringify('good response', null, 2);
+      result.should.deep.equal(expect);
+    });
+
+  });
 });
