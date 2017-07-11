@@ -43,51 +43,49 @@ describe('smartSuveyAPI', function() {
       stub.restore();
     });
   });
-    describe('smartSurveyClientAPI', function() {
-      var context;
-      beforeEach(function() {
-        context = {
-          createClient: sinon.stub(),
-          client: {
-            getResponses: sinon.stub()
-          },
-          callback: function() {}
-        };
-        smartSurveyClientAPI.getData.call(context, 'a', 'b', '1', context.callback);
-      });
-      it('calls this.createClient with the correct params', function() {
-         context.createClient.should.have.been.calledWithExactly('a', 'b');
-      });
-      it('calls this.client.getResponses with the correct params', function() {
-         context.client.getResponses.should.have.been.calledWithExactly(
-          '1', {
-            page: 1, pageSize: 25, includeLabels: false
-          }, context.callback);
-      });
-      it('sets this.client to a new instance of SmartSurveyClient', function() {
-          context = {};
-          // you can mock smartSurveyClientAPI as a constructor if you want to, but not essential
-          smartSurveyClientAPI.createClient.call(context, 'a', 'b');
-          context.client.should.be.instanceof(stubSmartSurvey);
-      });
-      it('calls the SmartSurveyClient constructor', function() {
-          context = {};
-          // reassign the stubSmartSurvey with a stub to listen
-          stubSmartSurvey = sinon.stub();
-
-          // reproxyrequire because the stubSmartSurvey now has a stub
-          smartSurveyClientAPI = proxyquire('../../lib/smart-survey-api', {
-            'smartsurvey-client': stubSmartSurvey
-          });
-
-          smartSurveyClientAPI.createClient.call(context, '1', '2');
-          stubSmartSurvey.should.have.been.called;
-      });
-  });
   describe('smartSurveyClientAPI', function() {
+    var context;
+    beforeEach(function() {
+      context = {
+        createClient: sinon.stub(),
+        client: {
+          getResponses: sinon.stub()
+        },
+        callback: function() {}
+      };
+      smartSurveyClientAPI.getData.call(context, 'a', 'b', '1', context.callback);
+    });
+    it('calls this.createClient with the correct params', function() {
+       context.createClient.should.have.been.calledWithExactly('a', 'b');
+    });
+    it('calls this.client.getResponses with the correct params', function() {
+       context.client.getResponses.should.have.been.calledWithExactly(
+        '1', {
+          page: 1, pageSize: 25, includeLabels: false
+        }, context.callback);
+    });
+    it('sets this.client to a new instance of SmartSurveyClient', function() {
+        context = {};
+        // you can mock smartSurveyClientAPI as a constructor if you want to, but not essential
+        smartSurveyClientAPI.createClient.call(context, 'a', 'b');
+        context.client.should.be.instanceof(stubSmartSurvey);
+    });
+    it('calls the SmartSurveyClient constructor', function() {
+        context = {};
+        // reassign the stubSmartSurvey with a stub to listen
+        stubSmartSurvey = sinon.stub();
+
+        // reproxyrequire because the stubSmartSurvey now has a stub
+        smartSurveyClientAPI = proxyquire('../../lib/smart-survey-api', {
+          'smartsurvey-client': stubSmartSurvey
+        });
+
+        smartSurveyClientAPI.createClient.call(context, '1', '2');
+        stubSmartSurvey.should.have.been.called;
+    });
     it('should call the callback with an error response when we receive an error from the api', function() {
 
-      let context = {
+      context = {
         createClient: sinon.stub(),
         client: {
           getResponses: sinon.stub()
@@ -102,10 +100,9 @@ describe('smartSuveyAPI', function() {
       smartSurveyClientAPI.getData.call(context, 'a', 'b', undefined, callback);
       callback.should.have.been.calledWith('error message', 1);
     });
-
     it('should call the callback without an error when we receive success from the api', function() {
 
-      let context = {
+      context = {
         createClient: sinon.stub(),
         client: {
           getResponses: sinon.stub()
