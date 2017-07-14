@@ -7,6 +7,8 @@ const govukTemplate = require('hof-govuk-template');
 const hoganExpressStrict = require('hogan-express-strict');
 const expressPartialTemplates = require('express-partial-templates');
 const _ = require('lodash');
+const config = require('./config');
+const port = config.port;
 
 govukTemplate.setup(app);
 app.set('view engine', 'html')
@@ -21,6 +23,6 @@ app.get('/', function(req, res, next){
   }))
 })
 
-app.listen(4000, function() {
-  console.log('App on port 4000')
+app.listen(port, function() {
+  console.log(`App on port ${port}`)
 })
