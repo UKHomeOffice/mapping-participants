@@ -9,6 +9,7 @@ const expressPartialTemplates = require('express-partial-templates');
 const _ = require('lodash');
 const smartSurveyAPICall = require('./lib/smartSurveyAPICall');
 const config = require('./config');
+const port = config.port;
 
 govukTemplate.setup(app);
 app.set('view engine', 'html');
@@ -31,7 +32,7 @@ app.get('/responses', function get(req, res) {
     smartSurveyAPICall.parseResponse));
 });
 
-app.listen(4000, function listen() {
-  // eslint-disable-next-line no-console
-  console.log('App on port 4000');
+app.listen(port, function listen() {
+    // eslint-disable-next-line no-console
+  console.log(`App on port ${port}`);
 });
