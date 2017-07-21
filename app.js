@@ -7,8 +7,9 @@ const govukTemplate = require('hof-govuk-template');
 const hoganExpressStrict = require('hogan-express-strict');
 const expressPartialTemplates = require('express-partial-templates');
 const _ = require('lodash');
-const smartSurveyAPICall = require('./lib/smartSurveyAPICall');
+const smartSurveyAPICall = require('./lib/smart-survey-api');
 const config = require('./config');
+const port = config.port;
 
 govukTemplate.setup(app);
 app.set('view engine', 'html');
@@ -24,14 +25,15 @@ app.get('/', function get(req, res) {
 });
 
 app.get('/responses', function get(req, res) {
-  res.json(smartSurveyAPICall.getData(
+return smartSurveyAPICall.getData(
     config.apiToken,
     config.apiTokenSecret,
-    config.surveyID,
-    smartSurveyAPICall.parseResponse));
+    config.surveyID)
+  .then(smartSurveyAPICall.refromatResponse)
+  .then(results => res.json(results))
 });
 
-app.listen(4000, function listen() {
+app.listen(port, function listen() {
   // eslint-disable-next-line no-console
-  console.log('App on port 4000');
+  console.log(`App on port ${port}`);
 });
