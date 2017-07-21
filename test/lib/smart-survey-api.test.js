@@ -4,19 +4,14 @@ const sinon = require('sinon');
 const chai = require('chai').use(require('sinon-chai'));
 chai.should();
 const proxyquire = require('proxyquire');
-let stubAxios = {};
-
-// Proxyquire syntax: first argument: point to your module (which holds your dependency)
-// 2nd argument: An object with the key: module name to proxy & the value the empty object above
-// So this means smartSurveyAxiosAPI will now point to this empty object, i.e. a stub
-const smartSurveyAxiosAPI = proxyquire('../../lib/smart-survey-api', {
-  'axios': stubAxios,
-});
 
 // create an empty function using not using arrow functions because using context
 var stubSmartSurvey = function stubSmartSurvey() {
 };
 
+// Proxyquire syntax: first argument: point to your module (which holds your dependency)
+// 2nd argument: An object with the key: module name to proxy & the value the empty object above
+// So this means stubSmartSurvey will now point to this empty function, i.e. a stub
 var smartSurveyClientAPI = proxyquire('../../lib/smart-survey-api', {
   'smartsurvey-client': stubSmartSurvey
 });
@@ -24,25 +19,6 @@ var smartSurveyClientAPI = proxyquire('../../lib/smart-survey-api', {
 var parseResponse = require('../../lib/smart-survey-api').parseResponse;
 
 describe('smartSuveyAPI', function() {
-  describe('smartSurveyAxiosAPI', function() {
-    const baseUrl = 'a';
-    const surveyID = 'b';
-    const endPoint = 'c';
-    const token = 'd';
-    const tokenSecret = 'e';
-
-    it('axios should been called with the parameters baseURL, surveyID, endPoint, token, tokenSecret', function() {
-
-      // the sinon.stub resolves function is used for Promises
-      // this works as well, stubAxios.get = sinon.stub().resolves('test')
-      // however, this is done so that the stub can be restored for later
-      let stub = sinon.stub(stubAxios, 'get').resolves('test');
-
-      smartSurveyAxiosAPI.getResponses(baseUrl, surveyID, endPoint, token, tokenSecret);
-      stubAxios.get.should.have.been.calledWithExactly('a/b/c?api_token=d&api_token_secret=e');
-      stub.restore();
-    });
-  });
   describe('smartSurveyClientAPI', function() {
     var context;
     beforeEach(function() {
