@@ -5,8 +5,10 @@
   "main": "app.js",
   "scripts": {
     "start": "node .",
-    "test": "NODE_ENV=test mocha",
+    "test": "NODE_ENV=test mocha --recursive",
     "dev": "NODE_ENV=dev npm-run-all --parallel watch:app watch:sass",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "watch:app": "nodemon .",
     "watch:sass": "nodemon -e scss -x 'npm run sass'",
     "setup": "mkdir ./public; mkdir ./public/css",
@@ -25,16 +27,24 @@
   },
   "homepage": "https://github.com/UKHomeOffice/mapping-participants#readme",
   "dependencies": {
+    "axios": "^0.16.1",
     "express": "^4.15.2",
     "express-partial-templates": "^0.2.0",
     "hof-frontend-toolkit": "^2.1.0",
     "hof-govuk-template": "1.0.0",
     "hogan-express-strict": "^0.5.4",
     "lodash": "^4.17.4",
-    "npm-sass": "^2.2.0"
+    "npm-sass": "^2.2.0",
+    "smartsurvey-client": "^1.1.2"
   },
   "devDependencies": {
+    "chai": "^4.0.1",
+    "eslint": "^4.1.1",
+    "eslint-config-homeoffice": "^2.1.2",
     "nodemon": "^1.11.0",
-    "npm-run-all": "^4.0.2"
+    "npm-run-all": "^4.0.2",
+    "proxyquire": "^1.8.0",
+    "sinon": "^2.3.2",
+    "sinon-chai": "^2.11.0"
   }
 }
