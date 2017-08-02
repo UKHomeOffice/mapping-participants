@@ -29,8 +29,8 @@ return smartSurveyAPICall.getData(
     config.apiToken,
     config.apiTokenSecret,
     config.surveyID)
-  .then(smartSurveyAPICall.refromatResponse)
   .then(results => res.json(results))
+  .catch(error => console.log(error));
 });
 
 app.listen(port, function listen() {
