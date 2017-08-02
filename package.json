@@ -28,7 +28,6 @@
   "homepage": "https://github.com/UKHomeOffice/mapping-participants#readme",
   "dependencies": {
     "axios": "^0.16.1",
-    "bluebird": "^3.5.0",
     "express": "^4.15.2",
     "express-partial-templates": "^0.2.0",
     "hof-frontend-toolkit": "^2.1.0",
@@ -40,6 +39,7 @@
   },
   "devDependencies": {
     "chai": "^4.0.1",
+    "chai-as-promised": "^7.1.1",
     "eslint": "^4.1.1",
     "eslint-config-homeoffice": "^2.1.2",
     "mocha": "^3.4.2",
