@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node .",
-    "test": "NODE_ENV=test mocha --recursive",
+    "test": "NODE_ENV=test mocha",
     "dev": "NODE_ENV=dev npm-run-all --parallel watch:app watch:sass",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

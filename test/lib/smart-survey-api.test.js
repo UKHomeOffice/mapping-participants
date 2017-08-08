@@ -1,11 +1,6 @@
 'use strict';
 
-const sinon = require('sinon');
-const chai = require('chai').use(require('sinon-chai'));
 const proxyquire = require('proxyquire');
-chai.should();
-chai.use(require('chai-as-promised'));
-
 let getResponsesStub = sinon.stub();
 
 // create an empty function for the stub because there is a constructor in the library
@@ -21,7 +16,7 @@ const smartSurveyAPI = proxyquire('../../lib/smart-survey-api', { 'smartsurvey-c
 describe('smartSurveyAPI', () => {
   describe('getData()', () => {
     it('is a function', () => (typeof smartSurveyAPI.getData).should.equal('function'));
-    // it('is takes 3 arguments', () => (typeof smartSurveyAPI.getData).should.have.lengthOf(3));
+    // it('takes 3 arguments', () => (typeof smartSurveyAPI.getData).should.have.lengthOf(3));
     describe('when HAPPYPATH', () => {
       let result;
       const response = {foo: 'bar'};
