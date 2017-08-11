@@ -18,7 +18,7 @@ describe('smartSurveyAPI', () => {
     it('is a function', () => (typeof smartSurveyAPI.getData).should.equal('function'));
     it('takes 3 arguments', () => (smartSurveyAPI.getData).should.have.lengthOf(3));
 
-    describe('when HAPPYPATH', () => {
+    describe('when smartSurvey responds without errors', () => {
       let result;
       const response = {foo: 'bar'};
 
@@ -37,7 +37,7 @@ describe('smartSurveyAPI', () => {
       it('resolves', () => result.should.eventually.be.fulfilled);
       it('that resolves to the response', () => result.should.eventually.equal(response));
   });
-    describe('when NOT HAPPYPATH', () => {
+    describe('when SmartSurvey returns an error', () => {
       let result;
       const error = 'some error';
       before(() => {
