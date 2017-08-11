@@ -16,7 +16,8 @@ const smartSurveyAPI = proxyquire('../../lib/smart-survey-api', { 'smartsurvey-c
 describe('smartSurveyAPI', () => {
   describe('getData()', () => {
     it('is a function', () => (typeof smartSurveyAPI.getData).should.equal('function'));
-    // it('takes 3 arguments', () => (typeof smartSurveyAPI.getData).should.have.lengthOf(3));
+    it('takes 3 arguments', () => (smartSurveyAPI.getData).should.have.lengthOf(3));
+
     describe('when HAPPYPATH', () => {
       let result;
       const response = {foo: 'bar'};
