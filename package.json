@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node .",
-    "test": "NODE_ENV=test mocha --recursive",
+    "test": "NODE_ENV=test mocha",
     "dev": "NODE_ENV=dev npm-run-all --parallel watch:app watch:sass",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -39,8 +39,10 @@
   },
   "devDependencies": {
     "chai": "^4.0.1",
+    "chai-as-promised": "^7.1.1",
     "eslint": "^4.1.1",
     "eslint-config-homeoffice": "^2.1.2",
+    "mocha": "^3.4.2",
     "nodemon": "^1.11.0",
     "npm-run-all": "^4.0.2",
     "proxyquire": "^1.8.0",

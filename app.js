@@ -7,7 +7,7 @@ const govukTemplate = require('hof-govuk-template');
 const hoganExpressStrict = require('hogan-express-strict');
 const expressPartialTemplates = require('express-partial-templates');
 const _ = require('lodash');
-const smartSurveyAPICall = require('./lib/smartSurveyAPICall');
+const smartSurveyAPICall = require('./lib/smart-survey-api');
 const config = require('./config');
 const port = config.port;
 
@@ -25,14 +25,18 @@ app.get('/', function get(req, res) {
 });
 
 app.get('/responses', function get(req, res) {
-  res.json(smartSurveyAPICall.getData(
+return smartSurveyAPICall.getData(
     config.apiToken,
     config.apiTokenSecret,
-    config.surveyID,
-    smartSurveyAPICall.parseResponse));
+    config.surveyID)
+  .then(results => res.json(results))
+  // This is a placeholder for error logging. In the future, the aim
+  // is to print a friendly message to the user with the stacktrace
+  // eslint-disable-next-line no-console
+  .catch(error => console.log(error));
 });
 
 app.listen(port, function listen() {
-    // eslint-disable-next-line no-console
+  // eslint-disable-next-line no-console
   console.log(`App on port ${port}`);
 });

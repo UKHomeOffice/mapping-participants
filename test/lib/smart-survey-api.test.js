@@ -1,107 +1,57 @@
 'use strict';
 
-const sinon = require('sinon');
-const chai = require('chai').use(require('sinon-chai'));
-chai.should();
 const proxyquire = require('proxyquire');
+let getResponsesStub = sinon.stub();
 
-// create an empty function using not using arrow functions because using context
-var stubSmartSurvey = function stubSmartSurvey() {
+// create an empty function for the stub because there is a constructor in the library
+// don't use arrow functions for that reason
+const smartSurveyStub = function() {
+    return {getResponses: getResponsesStub};
 };
-
 // Proxyquire syntax: first argument: point to your module (which holds your dependency)
-// 2nd argument: An object with the key: module name to proxy & the value the empty object above
-// So this means stubSmartSurvey will now point to this empty function, i.e. a stub
-var smartSurveyClientAPI = proxyquire('../../lib/smart-survey-api', {
-  'smartsurvey-client': stubSmartSurvey
-});
+// 2nd argument: An object with the key: module name to proxy & the value the object above
+// So this means smartSurveyStub will now point to this function, i.e. a stub
+const smartSurveyAPI = proxyquire('../../lib/smart-survey-api', { 'smartsurvey-client': smartSurveyStub});
 
-var parseResponse = require('../../lib/smart-survey-api').parseResponse;
+describe('smartSurveyAPI', () => {
+  describe('getData()', () => {
+    it('is a function', () => (typeof smartSurveyAPI.getData).should.equal('function'));
+    it('takes 3 arguments', () => (smartSurveyAPI.getData).should.have.lengthOf(3));
 
-describe('smartSuveyAPI', function() {
-  describe('smartSurveyClientAPI', function() {
-    var context;
-    beforeEach(function() {
-      context = {
-        createClient: sinon.stub(),
-        client: {
-          getResponses: sinon.stub()
-        },
-        callback: function() {}
-      };
-      smartSurveyClientAPI.getData.call(context, 'a', 'b', '1', context.callback);
-    });
-    it('calls this.createClient with the correct params', function() {
-       context.createClient.should.have.been.calledWithExactly('a', 'b');
-    });
-    it('calls this.client.getResponses with the correct params', function() {
-       context.client.getResponses.should.have.been.calledWithExactly(
-        '1', {
-          page: 1, pageSize: 25, includeLabels: false
-        }, context.callback);
-    });
-    it('sets this.client to a new instance of SmartSurveyClient', function() {
-        context = {};
-        // you can mock smartSurveyClientAPI as a constructor if you want to, but not essential
-        smartSurveyClientAPI.createClient.call(context, 'a', 'b');
-        context.client.should.be.instanceof(stubSmartSurvey);
-    });
-    it('calls the SmartSurveyClient constructor', function() {
-        context = {};
-        // reassign the stubSmartSurvey with a stub to listen
-        stubSmartSurvey = sinon.stub();
+    describe('when smartSurvey responds without errors', () => {
+      let result;
+      const response = {foo: 'bar'};
 
-        // reproxyrequire because the stubSmartSurvey now has a stub
-        smartSurveyClientAPI = proxyquire('../../lib/smart-survey-api', {
-          'smartsurvey-client': stubSmartSurvey
-        });
+      before(() => {
+        getResponsesStub
+          .withArgs('survey1', sinon.match.any)
+          .yields(null, response);
+        result = smartSurveyAPI.getData('mytoken', 'mytokensecret', 'survey1');
+      });
 
-        smartSurveyClientAPI.createClient.call(context, '1', '2');
-        stubSmartSurvey.should.have.been.called;
-    });
-    it('should call the callback with an error response when we receive an error from the api', function() {
+      after(() => {
+        getResponsesStub.reset();
+      });
 
-      context = {
-        createClient: sinon.stub(),
-        client: {
-          getResponses: sinon.stub()
-        }
-      };
-      const callback = sinon.stub();
-
-      // Causes the stub to call the argument at the index as a callback function.
-      // stub.callsArg(2); stub calls the 3rd argument as a callback.
-      // callsArgWith like callsArg, but with arguments to pass to the callback.
-      context.client.getResponses.callsArgWith(2, 'error message', 1);
-      smartSurveyClientAPI.getData.call(context, 'a', 'b', undefined, callback);
-      callback.should.have.been.calledWith('error message', 1);
-    });
-    it('should call the callback without an error when we receive success from the api', function() {
-
-      context = {
-        createClient: sinon.stub(),
-        client: {
-          getResponses: sinon.stub()
-        }
-      };
-      const callback = sinon.stub();
-
-      context.client.getResponses.callsArgWith(2, null, 'good');
-      smartSurveyClientAPI.getData.call(context, 'a', 'b', undefined, callback);
-      callback.should.have.been.calledWith(null, 'good');
-    });
+      it('returns a Promise', () => result.should.be.a('Promise'));
+      it('resolves', () => result.should.eventually.be.fulfilled);
+      it('that resolves to the response', () => result.should.eventually.equal(response));
   });
-
-  describe('parseResponse', function() {
-    it('should return an error message if there is an error', function() {
-      parseResponse('error', null).should.equal('error');
+    describe('when SmartSurvey returns an error', () => {
+      let result;
+      const error = 'some error';
+      before(() => {
+        getResponsesStub
+          .withArgs('noSurveyId', sinon.match.any)
+          .yields(error, null);
+        result = smartSurveyAPI.getData('mytoken', 'mytokensecret', 'noSurveyId');
+      });
+      after(() => {
+        getResponsesStub.reset();
+      });
+      it('returns a Promise', () => result.should.be.a('Promise'));
+      it('rejects', () => result.should.eventually.be.rejected);
+      it('that rejects to the error', () => result.should.be.rejectedWith(error));
     });
-
-    it('should return the result if there is no error', function() {
-      const result = parseResponse(null, 'good response');
-      const expect = JSON.stringify('good response', null, 2);
-      result.should.deep.equal(expect);
-    });
-
   });
 });
