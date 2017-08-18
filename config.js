@@ -7,5 +7,8 @@ module.exports = {
   apiBaseUrl: process.env.BASE_URL || 'https://api.smartsurvey.io/v1/surveys',
   surveyID: process.env.SURVEY_ID || '339109',
   endPointResponses: 'responses',
-  port: process.env.PORT || '4000'
+  port: process.env.PORT || '4000',
+  page: process.env.PAGE || 1,
+  pageSize: process.env.PAGE_SIZE || 25,
+  includeLabels: process.env.INCLUDE_LABELS || true
 };
