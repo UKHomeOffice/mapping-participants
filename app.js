@@ -7,9 +7,9 @@ const govukTemplate = require('hof-govuk-template');
 const hoganExpressStrict = require('hogan-express-strict');
 const expressPartialTemplates = require('express-partial-templates');
 const _ = require('lodash');
-const SmartSurveyAPIBase = require('./lib/smart-survey-api');
-const smartSurveyAPI = new SmartSurveyAPIBase();
 const config = require('./config');
+const SmartSurveyAPIBase = require('./lib/smart-survey-api');
+const smartSurveyAPI = new SmartSurveyAPIBase(config.apiToken, config.apiTokenSecret);
 const port = config.port;
 
 govukTemplate.setup(app);
@@ -25,21 +25,24 @@ app.get('/', function get(req, res) {
   }));
 });
 
-app.get('/responses', function get(req, res) {
-  const options = {
-    token: config.apiToken,
-    tokenSecret: config.apiTokenSecret,
-    surveyID: config.surveyID
-  };
-  return smartSurveyAPI.getData(options)
-    .then(results => res.json(results))
-    // This is a placeholder for error logging. In the future, the aim
-    // is to print a friendly message to the user with the stacktrace
-    // eslint-disable-next-line no-console
-    .catch(error => console.log(error));
-});
+// Create a function that passes in a var rather than having var in the function
+// itself.  Otherwise you have a dependency of var especially if it's a config.
+// Therefore, you'll have to stub it
+const getSmartSurveyReponses = (surveyID) => {
+    return (req, res) => {
+    smartSurveyAPI.getData(surveyID)
+      .then(results => res.json(results)
+      // This is a placeholder for error logging. In the future, the aim
+      // is to print a friendly message to the user with the stacktrace
+      // eslint-disable-next-line no-console
+      .catch(console.log));
+    };
+};
 
-app.listen(port, function listen() {
+app.get('/responses', getSmartSurveyReponses(config.surveyID));
+
+
+app.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`App on port ${port}`);
 });

@@ -14,27 +14,22 @@ const smartSurveyStub = function() {
 // & the value the object above of the proxy
 // So this means smartSurveyStub will now point to this function, i.e. a stub
 const SmartSurveyAPIBase = proxyquire('../../lib/smart-survey-api', { 'smartsurvey-client': smartSurveyStub});
-const smartSurveyAPI = new SmartSurveyAPIBase();
+const smartSurveyAPI = new SmartSurveyAPIBase('mytoken', 'mytokensecret');
 
 describe('smartSurveyAPI', () => {
   describe('getData()', () => {
     it('is a function', () => (typeof smartSurveyAPI.getData).should.equal('function'));
-    it('takes 2 argument', () => (smartSurveyAPI.getData).should.have.lengthOf(2));
+    it('takes 1 mandatory argument', () => (smartSurveyAPI.getData).should.have.lengthOf(1));
 
     describe('when smartSurvey responds without errors', () => {
       let result;
       const response = {foo: 'bar'};
-      const options = {
-        token: 'mytoken',
-        tokenSecret: 'mytokensecret',
-        surveyID: 'survey1'
-      };
 
       before(() => {
         getResponsesStub
           .withArgs('survey1', sinon.match.any)
           .yields(null, response);
-        result = smartSurveyAPI.getData(options);
+        result = smartSurveyAPI.getData('survey1');
       });
 
       after(() => {
@@ -47,17 +42,12 @@ describe('smartSurveyAPI', () => {
     });
     describe('when SmartSurvey returns an error', () => {
       let result;
-      const options = {
-        token: 'mytoken',
-        tokenSecret: 'mytokensecret',
-        surveyID: 'noSurveyId'
-      };
       const error = 'some error';
       before(() => {
         getResponsesStub
           .withArgs('noSurveyId', sinon.match.any)
           .yields(error, null);
-        result = smartSurveyAPI.getData(options);
+        result = smartSurveyAPI.getData('noSurveyId');
       });
       after(() => {
         getResponsesStub.reset();
