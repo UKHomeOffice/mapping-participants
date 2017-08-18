@@ -8,8 +8,10 @@ let getResponsesStub = sinon.stub();
 const smartSurveyStub = function() {
     return {getResponses: getResponsesStub};
 };
-// Proxyquire syntax: first argument: point to your module (which holds your dependency)
-// 2nd argument: An object with the key: module name of the dependency & the value the object above of the proxy
+// Proxyquire syntax:
+// first argument: points to your module (which holds your dependency)
+// 2nd argument: An object. The object has a key that is the name of the moduleof the dependency
+// & the value the object above of the proxy
 // So this means smartSurveyStub will now point to this function, i.e. a stub
 const SmartSurveyAPIBase = proxyquire('../../lib/smart-survey-api', { 'smartsurvey-client': smartSurveyStub});
 const smartSurveyAPI = new SmartSurveyAPIBase();
@@ -17,7 +19,7 @@ const smartSurveyAPI = new SmartSurveyAPIBase();
 describe('smartSurveyAPI', () => {
   describe('getData()', () => {
     it('is a function', () => (typeof smartSurveyAPI.getData).should.equal('function'));
-    it('takes 1 argument', () => (smartSurveyAPI.getData).should.have.lengthOf(2));
+    it('takes 2 argument', () => (smartSurveyAPI.getData).should.have.lengthOf(2));
 
     describe('when smartSurvey responds without errors', () => {
       let result;

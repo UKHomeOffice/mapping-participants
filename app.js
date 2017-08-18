@@ -31,7 +31,6 @@ app.get('/responses', function get(req, res) {
     tokenSecret: config.apiTokenSecret,
     surveyID: config.surveyID
   };
-
   return smartSurveyAPI.getData(options)
     .then(results => res.json(results))
     // This is a placeholder for error logging. In the future, the aim
