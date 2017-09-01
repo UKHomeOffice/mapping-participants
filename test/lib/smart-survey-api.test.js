@@ -13,13 +13,12 @@ const smartSurveyStub = function() {
 // 2nd argument: An object. The object has a key that is the name of the moduleof the dependency
 // & the value the object above of the proxy
 // So this means smartSurveyStub will now point to this function, i.e. a stub
-const SmartSurveyAPIBase = proxyquire('../../lib/smart-survey-api', { 'smartsurvey-client': smartSurveyStub});
-const smartSurveyAPI = new SmartSurveyAPIBase('mytoken', 'mytokensecret');
+const SurveyApi = proxyquire('../../lib/smart-survey-api', { 'smartsurvey-client': smartSurveyStub});
 
-describe('smartSurveyAPI', () => {
+describe('SurveyApi', () => {
   describe('getData()', () => {
-    it('is a function', () => (typeof smartSurveyAPI.getData).should.equal('function'));
-    it('takes 1 mandatory argument', () => (smartSurveyAPI.getData).should.have.lengthOf(1));
+    it('is a function', () => (typeof SurveyApi.getData).should.equal('function'));
+    it('takes 0 mandatory argument', () => (SurveyApi.getData).should.have.lengthOf(0));
 
     describe('when smartSurvey responds without errors', () => {
       let result;
@@ -29,7 +28,7 @@ describe('smartSurveyAPI', () => {
         getResponsesStub
           .withArgs('survey1', sinon.match.any)
           .yields(null, response);
-        result = smartSurveyAPI.getData('survey1');
+        result = SurveyApi.getData({surveyID: 'survey1'});
       });
 
       after(() => {
@@ -47,7 +46,7 @@ describe('smartSurveyAPI', () => {
         getResponsesStub
           .withArgs('noSurveyId', sinon.match.any)
           .yields(error, null);
-        result = smartSurveyAPI.getData('noSurveyId');
+        result = SurveyApi.getData({surveyID: 'noSurveyId'});
       });
       after(() => {
         getResponsesStub.reset();

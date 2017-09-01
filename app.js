@@ -8,8 +8,7 @@ const hoganExpressStrict = require('hogan-express-strict');
 const expressPartialTemplates = require('express-partial-templates');
 const _ = require('lodash');
 const config = require('./config');
-const SmartSurveyAPIBase = require('./lib/smart-survey-api');
-const smartSurveyAPI = new SmartSurveyAPIBase(config.apiToken, config.apiTokenSecret);
+const surveyApi = require('./lib/smart-survey-api');
 const port = config.port;
 
 govukTemplate.setup(app);
@@ -25,24 +24,21 @@ app.get('/', function get(req, res) {
   }));
 });
 
-// Create a function that passes in a var rather than having var in the function
-// itself.  Otherwise you have a dependency of var especially if it's a config.
-// Therefore, you'll have to stub it
-const getSmartSurveyReponses = (surveyID) => {
-    return (req, res) => {
-    smartSurveyAPI.getData(surveyID)
-      .then(results => res.json(results)
-      // This is a placeholder for error logging. In the future, the aim
-      // is to print a friendly message to the user with the stacktrace
-      // eslint-disable-next-line no-console
-      .catch(console.log));
-    };
+// (req, res) is passed in because of the way express works
+const surveyMiddleware = (req, res) => {
+  surveyApi.getData()
+    .then(results => res.json(results))
+    // This is a placeholder for error logging. In the future, the aim
+    // is to print a friendly message to the user with the stacktrace
+    // eslint-disable-next-line no-console
+    .catch(console.log);
 };
 
-app.get('/responses', getSmartSurveyReponses(config.surveyID));
+app.get('/responses', surveyMiddleware);
 
 
 app.listen(port, () => {
+  // In order to disable an eslint next line, you pass in eslint-disable-next-line with the name of the rule
   // eslint-disable-next-line no-console
   console.log(`App on port ${port}`);
 });
