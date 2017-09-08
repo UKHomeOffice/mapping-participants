@@ -8,15 +8,17 @@ let getResponsesStub = sinon.stub();
 const smartSurveyStub = function() {
     return {getResponses: getResponsesStub};
 };
-// Proxyquire syntax: first argument: point to your module (which holds your dependency)
-// 2nd argument: An object with the key: module name to proxy & the value the object above
+// Proxyquire syntax:
+// first argument: points to your module (which holds your dependency)
+// 2nd argument: An object. The object has a key that is the name of the moduleof the dependency
+// & the value the object above of the proxy
 // So this means smartSurveyStub will now point to this function, i.e. a stub
-const smartSurveyAPI = proxyquire('../../lib/smart-survey-api', { 'smartsurvey-client': smartSurveyStub});
+const SurveyApi = proxyquire('../../lib/smart-survey-api', { 'smartsurvey-client': smartSurveyStub});
 
-describe('smartSurveyAPI', () => {
+describe('SurveyApi', () => {
   describe('getData()', () => {
-    it('is a function', () => (typeof smartSurveyAPI.getData).should.equal('function'));
-    it('takes 3 arguments', () => (smartSurveyAPI.getData).should.have.lengthOf(3));
+    it('is a function', () => (typeof SurveyApi.getData).should.equal('function'));
+    it('takes 0 mandatory argument', () => (SurveyApi.getData).should.have.lengthOf(0));
 
     describe('when smartSurvey responds without errors', () => {
       let result;
@@ -26,7 +28,7 @@ describe('smartSurveyAPI', () => {
         getResponsesStub
           .withArgs('survey1', sinon.match.any)
           .yields(null, response);
-        result = smartSurveyAPI.getData('mytoken', 'mytokensecret', 'survey1');
+        result = SurveyApi.getData({surveyID: 'survey1'});
       });
 
       after(() => {
@@ -36,7 +38,7 @@ describe('smartSurveyAPI', () => {
       it('returns a Promise', () => result.should.be.a('Promise'));
       it('resolves', () => result.should.eventually.be.fulfilled);
       it('that resolves to the response', () => result.should.eventually.equal(response));
-  });
+    });
     describe('when SmartSurvey returns an error', () => {
       let result;
       const error = 'some error';
@@ -44,7 +46,7 @@ describe('smartSurveyAPI', () => {
         getResponsesStub
           .withArgs('noSurveyId', sinon.match.any)
           .yields(error, null);
-        result = smartSurveyAPI.getData('mytoken', 'mytokensecret', 'noSurveyId');
+        result = SurveyApi.getData({surveyID: 'noSurveyId'});
       });
       after(() => {
         getResponsesStub.reset();

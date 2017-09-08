@@ -9,7 +9,7 @@
     "dev": "NODE_ENV=dev npm-run-all --parallel watch:app watch:sass",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "watch:app": "nodemon .",
+    "watch:app": "nodemon --inspect .",
     "watch:sass": "nodemon -e scss -x 'npm run sass'",
     "setup": "mkdir ./public; mkdir ./public/css",
     "sass": "npm-sass ./app/assets/sass/app.scss > ./public/css/app.css",

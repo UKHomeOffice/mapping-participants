@@ -7,8 +7,8 @@ const govukTemplate = require('hof-govuk-template');
 const hoganExpressStrict = require('hogan-express-strict');
 const expressPartialTemplates = require('express-partial-templates');
 const _ = require('lodash');
-const smartSurveyAPICall = require('./lib/smart-survey-api');
 const config = require('./config');
+const surveyApi = require('./lib/smart-survey-api');
 const port = config.port;
 
 govukTemplate.setup(app);
@@ -24,19 +24,21 @@ app.get('/', function get(req, res) {
   }));
 });
 
-app.get('/responses', function get(req, res) {
-return smartSurveyAPICall.getData(
-    config.apiToken,
-    config.apiTokenSecret,
-    config.surveyID)
-  .then(results => res.json(results))
-  // This is a placeholder for error logging. In the future, the aim
-  // is to print a friendly message to the user with the stacktrace
-  // eslint-disable-next-line no-console
-  .catch(error => console.log(error));
-});
+// (req, res) is passed in because of the way express works
+const surveyMiddleware = (req, res) => {
+  surveyApi.getData()
+    .then(results => res.json(results))
+    // This is a placeholder for error logging. In the future, the aim
+    // is to print a friendly message to the user with the stacktrace
+    // eslint-disable-next-line no-console
+    .catch(console.log);
+};
 
-app.listen(port, function listen() {
+app.get('/responses', surveyMiddleware);
+
+
+app.listen(port, () => {
+  // In order to disable an eslint next line, you pass in eslint-disable-next-line with the name of the rule
   // eslint-disable-next-line no-console
   console.log(`App on port ${port}`);
 });
