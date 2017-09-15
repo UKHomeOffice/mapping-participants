@@ -9,6 +9,9 @@ const expressPartialTemplates = require('express-partial-templates');
 const _ = require('lodash');
 const config = require('./config');
 const surveyApi = require('./lib/smart-survey-api');
+const transform = require('./lib/transform');
+const testData = require('./test/test-data');
+
 const port = config.port;
 
 govukTemplate.setup(app);
@@ -36,9 +39,10 @@ const surveyMiddleware = (req, res) => {
 
 app.get('/responses', surveyMiddleware);
 
-
 app.listen(port, () => {
   // In order to disable an eslint next line, you pass in eslint-disable-next-line with the name of the rule
   // eslint-disable-next-line no-console
   console.log(`App on port ${port}`);
+  let stuff = transform.format(testData.data, ['id', 'tracking_link_id', 'status'], config.scoreId, config.agreeId);
+
 });
