@@ -10,6 +10,7 @@ const _ = require('lodash');
 const config = require('./config');
 const surveyApi = require('./lib/smart-survey-api');
 const transform = require('./lib/transform');
+const helper = require('./lib/helper');
 const testData = require('./test/test-data');
 
 const port = config.port;
@@ -30,7 +31,13 @@ app.get('/', function get(req, res) {
 // (req, res) is passed in because of the way express works
 const surveyMiddleware = (req, res) => {
   surveyApi.getData()
-    .then(results => res.json(results))
+    // .then(results => res.json(results))
+    .then(results => {
+      const calls = helper.callsRemaining(results);
+      const mergedData = helper.getMergedData(calls, results);
+      const stuff = transform.format(mergedData.data, ['id', 'tracking_link_id', 'status'], config.pageId, config.scoreId, config.agreeId);
+      // console.log('mergedData', mergedData);
+    })
     // This is a placeholder for error logging. In the future, the aim
     // is to print a friendly message to the user with the stacktrace
     // eslint-disable-next-line no-console
@@ -43,6 +50,6 @@ app.listen(port, () => {
   // In order to disable an eslint next line, you pass in eslint-disable-next-line with the name of the rule
   // eslint-disable-next-line no-console
   console.log(`App on port ${port}`);
-  let stuff = transform.format(testData.data, ['id', 'tracking_link_id', 'status'], config.scoreId, config.agreeId);
+  // const stuff = transform.format(testData.data, ['id', 'tracking_link_id', 'status'], config.pageId, config.scoreId, config.agreeId);
 
 });
